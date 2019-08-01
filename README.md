@@ -1,23 +1,9 @@
-# MDX Deck + Code Surfer template
+# Hooks Introduction Workshop Slides
 
-This project was generated with the `npm init code-surfer-deck` command.
+You can view the slides [here](https://hooks-intro-deck.jaredkent.now.sh/) or clone/fork and run this project locally
 
-## Development
+To open the slides:
 
-To run the presentation deck in development mode:
-
-```sh
-npm start
-```
-
-Edit the [`deck.mdx`](deck.mdx) file to get started.
-
-## Exporting
-
-To build the presentation deck:
-
-```sh
-npm run build
-```
-
-For more documentation see [mdx-deck](https://github.com/jxnblk/mdx-deck) and [code-surfer](https://github.com/pomber/code-surfer)
+- `git clone https://github.com/Jaredk3nt/hooks-intro.git`
+- `npm install`
+- `npm start`
