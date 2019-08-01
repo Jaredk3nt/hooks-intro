@@ -2,96 +2,907 @@ import {
   CodeSurferLayout,
   CodeSurferColumnLayout,
 } from "code-surfer";
+import Layout from './Layout';
 export { githubFull as theme } from "code-surfer";
 
-# Hello 👋
+# Intro to React Hooks ⚛️
 
-You are using [MDX Deck](https://github.com/jxnblk/mdx-deck) and [Code Surfer](https://github.com/pomber/code-surfer)
+Quick guide to using `useState`, `useReducer`, and `useEffect`.
+
+---
+
+## What are hooks?
+
+---
+
+<Layout>
+
+Hooks are a new feature of React with the intent of bringing all of the functionality possible in class components to functional components
+
+</Layout>
+
+---
+
+<Layout>
+
+### Hooks were created to:
+
+- Help reuse stateful logic between components
+  - Make stateful logic easier to test
+  - Allow reuse without modifying your component heirarchy or 'wrapper hell'
+- Make complex components easier to understand
+- Allow React to move away from classes which have been causing issues around build features and new features React wants to add
+  - Don't be afraid they aren't killing classes, but some features in the future **may** only be supported by functional components
+
+</Layout>
+
+---
+
+## `useState`
 
 ---
 
 <CodeSurferLayout>
 
-```js title="This is a title"
-function hello(name) {
-  console.log("hello " + name);
+```jsx subtitle="Here we have a basic functional component"
+function MyComponent(props) {
+  return (
+    <h1>Hello World</h1>
+  )
 }
-
-hello("world");
 ```
 
-```js 1:3 subtitle="This is a subtitle"
-function hello(name) {
-  console.log("hello " + name);
+```jsx subtitle="Let's say that we wanted to add a simple count, and a button that allowed us to increment that count."
+function MyComponent(props) {
+  return (
+    <div>
+      <h1>0</h1>
+      <button>Click to Increment</button>
+    </div>
+  )
 }
-
-hello("world");
 ```
 
-```js subtitle="New code is highlighted by default"
-function helloFactory() {
-  return name => {
-    console.log("hello " + name);
-  };
-}
+```jsx subtitle="Before React v16.8 we would have to convert our existing component to a from a function to a 'class' component"
+class MyComponent extends Component {
+  state = { count: 0 };
 
-function hello(name) {
-  console.log("hello " + name);
-}
+  updateCount = () => {
+    this.setState({ count: this.state.count++ })
+  }
 
-hello("world");
+  render() {
+    return (
+      <div>
+        <h1>{this.state.count}</h1>
+        <button onClick={this.updateCount}>Click to Increment</button>
+      </div>
+    )
+  }
+}
 ```
 
-```js subtitle="Adding more code so I can show you how the zoom works"
-function helloFactoryBuilder() {
-  return () => () => name => {
-    console.log("hello " + name);
-  };
-}
+```jsx subtitle="Instead of having to go through this process, what if there was a way to track and update state in our original component?"
+function MyComponent(props) {
+  const count = ???
+  const updateCount = ???
 
-function helloBuilder() {
-  return name => {
-    console.log("hello " + name);
-  };
+  return (
+    <div>
+      <h1>{count}</h1>
+      <button onClick={updateCount}>Click to Increment</button>
+    </div>
+  )
 }
-
-function helloFactory() {
-  return name => {
-    console.log("hello " + name);
-  };
-}
-
-function hello(name) {
-  console.log("hello " + name);
-}
-
-hello("world");
 ```
 
-```js 1:23
-function helloFactoryBuilder() {
-  return () => () => name => {
-    console.log("hello " + name);
-  };
-}
+```jsx subtitle="The hooks API allow us to do just that, by allowing us to 'use' state and have React manage it for us"
+function MyComponent(props) {
+  const [count, updateCount] = React.useState(0);
 
-function helloBuilder() {
-  return name => {
-    console.log("hello " + name);
-  };
+  return (
+    <div>
+      <h1>{count}</h1>
+      <button onClick={() => updateCount(count + 1)}>Click to Increment</button>
+    </div>
+  )
 }
+```
 
-function helloFactory() {
-  return name => {
-    console.log("hello " + name);
-  };
+```jsx subtitle="Side note: you can import all built-in React hooks directly"
+import React, { useState } from 'react';
+
+function MyComponent(props) {
+  const [count, updateCount] = useState(0);
+
+  return (
+    <div>
+      <h1>{count}</h1>
+      <button onClick={() => updateCount(count + 1)}>Click to Increment</button>
+    </div>
+  )
 }
-
-function hello(name) {
-  console.log("hello " + name);
-}
-
-hello("world");
 ```
 
 </CodeSurferLayout>
+
+---
+
+### Using `useState`
+
+---
+
+<CodeSurferLayout>
+
+```jsx subtitle="useState replaces the functionality provided by traditional class state in a more concise way"
+// Hooks API for state
+const [value, setValue] = useState('my-value');
+
+// Class API for state
+constructor(props) {
+  super(props);
+  this.state = {
+    value: 'my-value'
+  }
+}
+
+setValue = (newValue) => {
+  this.setState({
+    value: newValue
+  })
+}
+```
+
+```js 1 subtitle="useState is a function that takes in an initial state value, and returns an array of two values: the state value and an 'setter' function for the value"
+const [value, setValue] = useState('my-value');
+```
+
+```jsx subtitle="Just like with class state our state values can be anything we want"
+const [value, setValue] = useState('my-value');
+
+const [value, setValue] = useState(0);
+
+const [value, setValue] = useState([]);
+
+const [value, setValue] = useState({});
+```
+
+```jsx 1:6 subtitle="The 'setter' function completely overwrites the old state value rather than merging a whole state object like setState does"
+const [value, setValue] = useState('my-value');
+
+console.log(value); // 'my-value'
+setValue('new-value');
+console.log(value); // 'new-value'
+```
+
+```jsx 1:6 subtitle="Keep this in mind when updating values like objects or arrays"
+const [value, setValue] = useState(['my-value', 'my-value-2']);
+
+console.log(value); // ['my-value', 'my-value-2']
+setValue('new-value'); // Overwrites, doesn't add
+console.log(value); // 'new-value'
+```
+
+```jsx subtitle="To add a new item to an array we need to create a new array with the value"
+const [value, setValue] = useState(['my-item']);
+
+console.log(value); // ['my-item']
+setValue([...value, 'my-item-2']);
+console.log(value); // ['my-item', 'my-item-2']
+```
+
+```jsx subtitle="You can also set the state using a 'functional update' which will guarantee the previous value of the state"
+const [value, setValue] = useState(['my-item']);
+
+console.log(value); // ['my-item']
+setValue(prevVal => {
+  return [...prevVal, 'my-item-2'];
+});
+console.log(value); // ['my-item', 'my-item-2']
+```
+
+</CodeSurferLayout>
+
+---
+
+## Questions on `useState`?
+
+---
+
+## `useReducer`
+
+---
+
+<CodeSurferLayout>
+
+```jsx subtitle="useState is great for a few values but with large state objects it can become cumbersome"
+function MyComponent() {
+  // Actual example from one of my personal projects
+  const [held, setHeld] = useState([]);
+  const [reverse, setReverse] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [current, setCurrent] = useState(undefined);
+  const [previous, setPrevious] = useState(undefined);
+}
+```
+
+```jsx subtitle="useReducer is a great alternative for dealing with large or complex state objects, by using the 'reducer' pattern to manage actions on the state (made popular by Redux)"
+function MyComponent() {
+  const [state, dispatch] = useReducer(reducer, {
+    held: [],
+    reverse: false,
+    visible: false,
+    menuOpen: false,
+    current: undefined,
+    previous: undefined
+  });
+}
+```
+
+```jsx subtitle="A reducer is a function helps us to specify how our component state changes in response to pre-determined actions"
+function reducer(state, action) {
+  switch (action.type) {
+    case 'ADD_HELD':
+      return { ...state, held: [...state.held, action.item] };
+    case 'TOGGLE_VISIBLE':
+      return { ...state, visible: !state.visible };
+    case 'TOGGLE_REVERSE':
+      return { ...state, reverse: !state.reverse };
+    // ... Rest of the Actions ...
+    default:
+      throw new Error('Invalid Action');
+  }
+}
+
+function MyComponent() {
+  const [state, dispatch] = useReducer(reducer, {
+    held: [],
+    reverse: false,
+    visible: false,
+    menuOpen: false,
+    current: undefined,
+    previous: undefined
+  });
+}
+```
+
+```jsx 3,5,7 subtitle="In this reducer I have 3 actions defined"
+function reducer(state, action) {
+  switch (action.type) {
+    case 'ADD_HELD':
+      return { ...state, held: [...state.held, action.item] };
+    case 'TOGGLE_VISIBLE':
+      return { ...state, visible: !state.visible };
+    case 'TOGGLE_REVERSE':
+      return { ...state, reverse: !state.reverse };
+    // ... Rest of the Actions ...
+    default:
+      throw new Error('Invalid Action');
+  }
+}
+```
+
+```jsx 3:4 subtitle="Let's look at the ADD_HELD action in detail"
+function reducer(state, action) {
+  switch (action.type) {
+    case 'ADD_HELD':
+      return { ...state, held: [...state.held, action.item] };
+    case 'TOGGLE_VISIBLE':
+      return { ...state, visible: !state.visible };
+    case 'TOGGLE_REVERSE':
+      return { ...state, reverse: !state.reverse };
+    // ... Rest of the Actions ...
+    default:
+      throw new Error('Invalid Action');
+  }
+}
+```
+
+```jsx 4 subtitle="Here we are creating a brand new state object by spreading the old state into it and creating a shallow copy"
+function reducer(state, action) {
+  switch (action.type) {
+    case 'ADD_HELD':
+      return { ...state, held: [...state.held, action.item] };
+    case 'TOGGLE_VISIBLE':
+      return { ...state, visible: !state.visible };
+    case 'TOGGLE_REVERSE':
+      return { ...state, reverse: !state.reverse };
+    // ... Rest of the Actions ...
+    default:
+      throw new Error('Invalid Action');
+  }
+}
+```
+
+```jsx 4 subtitle="We then update the 'held' property by updating the array to add a new item immutibly"
+function reducer(state, action) {
+  switch (action.type) {
+    case 'ADD_HELD':
+      return { ...state, held: [...state.held, action.item] };
+    case 'TOGGLE_VISIBLE':
+      return { ...state, visible: !state.visible };
+    case 'TOGGLE_REVERSE':
+      return { ...state, reverse: !state.reverse };
+    // ... Rest of the Actions ...
+    default:
+      throw new Error('Invalid Action');
+  }
+}
+```
+
+```jsx 1,2,4 subtitle="The action provided has two properties in this case: type and item. It can have any number of properties that you give when taking this action, but it must always have a type"
+function reducer(state, action) {
+  switch (action.type) {
+    case 'ADD_HELD':
+      return { ...state, held: [...state.held, action.item] };
+    case 'TOGGLE_VISIBLE':
+      return { ...state, visible: !state.visible };
+    case 'TOGGLE_REVERSE':
+      return { ...state, reverse: !state.reverse };
+    // ... Rest of the Actions ...
+    default:
+      throw new Error('Invalid Action');
+  }
+}
+```
+
+```jsx subtitle="Let's look at how we can call one of these actions when using the useReducer hook"
+function MyComponent() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <div>
+      <ul>
+        {state.held.map(h => <li>{h}</li>)}
+      </ul>
+      
+      <ul>
+        // Other items to add...
+        <li>
+          <Text>Some Item</Text>
+          <button onClick={() => dispatch({ type: 'ADD_HELD', item: 'Some Item' })}>
+            Add 'Some Item'
+          </button>
+        </li>
+        // Other items to add...
+      </ul>
+    </div>
+  )
+}
+```
+
+```jsx 2,7 subtitle="We can see that we can access any of the properties defined on our state just like we would in a class component. Here we are creating a list from our 'held' array"
+function MyComponent() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <div>
+      <ul>
+        {state.held.map(h => <li>{h}</li>)}
+      </ul>
+      
+      <ul>
+        // Other items to add...
+        <li>
+          <Text>Some Item</Text>
+          <button onClick={() => dispatch({ type: 'ADD_HELD', item: 'Some Item' })}>
+            Add 'Some Item'
+          </button>
+        </li>
+        // Other items to add...
+      </ul>
+    </div>
+  )
+}
+```
+
+```jsx 2,14 subtitle="To take the action 'ADD_HELD' we have to 'dispatch' an action with that type. You can see we are doing that here on the button click, passing in both the type and item value we need."
+function MyComponent() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <div>
+      <ul>
+        {state.held.map(h => <li>{h}</li>)}
+      </ul>
+      
+      <ul>
+        // Other items to add...
+        <li>
+          <Text>Some Item</Text>
+          <button onClick={() => dispatch({ type: 'ADD_HELD', item: 'Some Item' })}>
+            Add 'Some Item'
+          </button>
+        </li>
+        // Other items to add...
+      </ul>
+    </div>
+  )
+}
+```
+
+```jsx subtitle="So to wrap all of that up, we can use useReducer to manage state with a reducer function and dispatches"
+const [state, dispatch] = useReducer(reducer, {});
+
+dispatch({ type: 'SOME_ACTION' });
+dispatch({
+  type: 'SOME_ACTION',
+  value: 'another value needed for my reducer'
+});
+```
+
+</CodeSurferLayout>
+
+---
+
+### Questions on `useReducer`?
+
+---
+
+## `useEffect`
+
+---
+
+<Layout>
+
+Both `useState` and `useReducer` are great for managing state.
+
+But what if I want to get my data from somewhere else?
+
+What if I need to listen for an event?
+
+</Layout>
+
+---
+
+<Layout>
+
+These scenarios are usually taken care of by the 'lifecycle hooks' in class components.
+
+How can we watch for prop/state updates, mount/unmount in a functional component?
+
+`useEffect` allows us to monitor 'side-effects' separately from our primary render function.
+
+</Layout>
+
+---
+
+<CodeSurferLayout>
+
+```jsx subtitle="If we tried to make a network request in plain function component we will end up calling it on every render"
+function MyComponent() {
+  axios.get('https://mydata.com/data');
+
+  return (...);
+}
+```
+
+```jsx subtitle="Now if we wrap our request in useEffect we can separate this from the primary render and have React manage the side-effect"
+function MyComponent() {
+  // Will only be called on mount
+  useEffect(() => {
+    axios.get('https://mydata.com/data');
+  }, []);
+
+  return (...);
+}
+```
+
+```jsx subtitle="Sometimes we want to be able to re-run a side-effect when something inside of our component changes"
+function MyComponent({ id }) {
+  // Will only be called on mount
+  useEffect(() => {
+    axios.get('https://mydata.com/data/' + id);
+  }, []);
+
+  return (...);
+}
+```
+
+```jsx 5 subtitle="You might have noticed there are actually two parameters in use effect, the second being an empty array"
+function MyComponent({ id }) {
+  // Will only be called on mount
+  useEffect(() => {
+    axios.get('https://mydata.com/data/' + id);
+  }, []);
+
+  return (...);
+}
+```
+
+```jsx 5 subtitle="This parameter is called the 'dependency array' and it is how we let React know when to re-run our effects"
+function MyComponent({ id }) {
+  // Will only be called on mount
+  useEffect(() => {
+    axios.get('https://mydata.com/data/' + id);
+  }, []);
+
+  return (...);
+}
+```
+
+```jsx 2,5 subtitle="In this case 'id' is a dependency of our effect because when it changes our effect changes too"
+function MyComponent({ id }) {
+  // Will run onMount and anytime 'id' changes
+  useEffect(() => {
+    axios.get('https://mydata.com/data/' + id);
+  }, [id]);
+
+  return (...);
+}
+```
+
+```jsx 1:10 subtitle="Important note if we were to not provide a dep. array, React will run our effect on every render as if the useEffect wasn't there since it doesn't know what we depend on"
+function MyComponent({ id }) {
+  // Runs on every render
+  useEffect(() => {
+    axios.get('https://mydata.com/data/' + id);
+  });
+
+  return (...);
+}
+```
+
+```jsx 1:10 subtitle="This is especially bad if our effect will cause our component to re-render, we will get an infinite loop!"
+function MyComponent({ id }) {
+  const [value, setValue] = useState('');
+  // Loops infinitely!
+  useEffect(() => {
+    axios.get('https://mydata.com/data/' + id)
+      .then(res => {
+        setValue(res);
+      });
+  });
+
+  return (...);
+}
+```
+
+
+```jsx 1:10 subtitle="If you are using CRA, it uses an eslint rule that will require you to put any dependencies you are using."
+function MyComponent({ id }) {
+  // ERROR: missing required dependency!
+  useEffect(() => {
+    axios.get('https://mydata.com/data/' + id);
+  });
+
+  return (...);
+}
+```
+
+</CodeSurferLayout>
+
+---
+
+### Cleaning up your effects
+
+---
+
+<CodeSurferLayout>
+
+```js subtitle="When we want to watch for an event we need to remove our listener to avoid memory leaks. We do this with lifecycle hooks in class components"
+componentDidMount() {
+  window.addEventListener('click', this.handleClickEvent);
+}
+
+componentWillUnmount() {
+  window.removeEventListener('click', this.handleClickEvent);
+}
+```
+
+```js subtitle="How do we know when to remove our listener when using useEffect?"
+useEffect(() => {
+  window.addEventListener('click', handleClickEvent);
+  // window.removeEventListener('click', handleClickEvent); ???
+}, [handleClickEvent]);
+```
+
+```js subtitle="React provides an escape hatch by allowing you to return another function from the useEffect callback that it calls when your component is unmounted."
+useEffect(() => {
+  window.addEventListener('click', handleClickEvent);
+
+  return () => {
+    window.removeEventListener('click', handleClickEvent);
+  }
+}, [handleClickEvent]);
+```
+
+```js 7 subtitle="Notice that I put handleClickEvent in the dependency array, because our eslint rule requires all external references be listed there."
+useEffect(() => {
+  window.addEventListener('click', handleClickEvent);
+  
+  return () => {
+    window.removeEventListener('click', handleClickEvent);
+  }
+}, [handleClickEvent]);
+```
+
+```js subtitle="If you run this code you will find that our useEffect is run on every re-render, not what we wanted!"
+function MyComponent() {
+  function handleClickEvent(event) {
+    // handle event logic
+  }
+
+  useEffect(() => {
+    window.addEventListener('click', handleClickEvent);
+    
+    return () => {
+      window.removeEventListener('click', handleClickEvent);
+    }
+  }, [handleClickEvent]);
+}
+```
+
+```js 2:4 subtitle="This is because our function is recreated on every render since it is defined inside of the component"
+function MyComponent() {
+  function handleClickEvent(event) {
+    // handle event logic
+  }
+
+  useEffect(() => {
+    window.addEventListener('click', handleClickEvent);
+    
+    return () => {
+      window.removeEventListener('click', handleClickEvent);
+    }
+  }, [handleClickEvent]);
+}
+```
+
+```js 2:5,12 subtitle="In this case we should move our function definition inside of our useEffect and we can remove it from the dependency array"
+function MyComponent() {
+  useEffect(() => {
+    function handleClickEvent(event) {
+      // handle event logic
+    }
+
+    window.addEventListener('click', handleClickEvent);
+    
+    return () => {
+      window.removeEventListener('click', handleClickEvent);
+    }
+  }, []);
+}
+```
+
+```js subtitle="If handleClickEvent was referencing any external variables or functions we would then need to add those to the dependency array however"
+function MyComponent() {
+  const CONSTANT = 2;
+  
+  useEffect(() => {
+    function handleClickEvent(event) {
+      const x = event.x * CONSTANT.length;
+    }
+
+    window.addEventListener('click', handleClickEvent);
+    
+    return () => {
+      window.removeEventListener('click', handleClickEvent);
+    }
+  }, [CONSTANT]); // Valid dependency array
+}
+```
+
+```js subtitle="This rule excludes any values defined outside of our component since those will never cause it to re-render"
+const CONSTANT = 2;
+
+function MyComponent() {
+  useEffect(() => {
+    function handleClickEvent(event) {
+      const x = event.x * CONSTANT.length;
+    }
+
+    window.addEventListener('click', handleClickEvent);
+    
+    return () => {
+      window.removeEventListener('click', handleClickEvent);
+    }
+  }, []); // Valid dependency array
+}
+```
+
+```js subtitle="Another exception to this rule is functions that are returned from React hooks, like useStates 'setter' function"
+function MyComponent() {
+  // The setter function is guaranteed to be memoized
+  // so it is not recreated on render
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    function handleClickEvent(event) {
+      setValue(event.x)
+    }
+
+    window.addEventListener('click', handleClickEvent);
+    
+    return () => {
+      window.removeEventListener('click', handleClickEvent);
+    }
+  });
+}
+```
+
+```js 2,5,6,8,16 subtitle="We still will still need to add values if they are used, even ones returned from React hooks"
+function MyComponent() {
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    // The way this function behaves changes when value changes
+    // So we want React to re-run our effect
+    function handleClickEvent(event) {
+      const x = event.x * value;
+    }
+
+    window.addEventListener('click', handleClickEvent);
+    
+    return () => {
+      window.removeEventListener('click', handleClickEvent);
+    }
+  }, [value]);
+}
+```
+
+</CodeSurferLayout>
+
+---
+
+### Questions on `useEffect`?
+
+This is the most complicated one, don't be scared if it confuses you now!
+
+---
+
+## Custom Hooks
+
+---
+
+<Layout>
+
+The most powerful feature of hooks is that they enable us to compose stateful-logic much easier than before.
+
+We can create our own hooks that can be imported and used in any component.
+
+</Layout>
+
+---
+
+<CodeSurferLayout>
+
+```js subtitle="Working with arrays in useState can be a bit cumbersome..."
+const [arr, setArr] = useState([]);
+```
+
+```js subtitle="Every time I want to add or remove I need to write new functions to handle that since my setter overwrites the whole array"
+const [arr, setArr] = useState([]);
+
+function addToArr(item) {
+  setArr([...arr, item]);
+}
+
+function removeFromArr(index) {
+  setArr([...arr.slice(0, index), ...arr.slice(index + 1, arr.length)]);
+}
+```
+
+```js subtitle="This may not look bad but I have to repeat this for every array I add to my state!"
+const [arr, setArr] = useState([]);
+const [arr2, setArr2] = useState([]);
+
+function addToArr(item) {
+  setArr([...arr, item]);
+}
+
+function removeFromArr(index) {
+  setArr([...arr.slice(0, index), ...arr.slice(index + 1, arr.length)]);
+}
+
+
+function addToArr2(item) {
+  setArr([...arr2, item]);
+}
+
+function removeFromArr2(index) {
+  setArr([...arr2.slice(0, index), ...arr2.slice(index + 1, arr2.length)]);
+}
+```
+
+```js subtitle="Wouldn't it be so much nicer if React just had a useArrayState that did this for me?!"
+const [arr, add, remove] = useArrayState([]);
+```
+
+```js subtitle="Luckily for us React supports custom hooks to package logic, by allowing us to call hooks in non-component functions"
+// Our custom hook MUST start with "use" so React know it is a hook
+function useArrayState(initialState) {
+  const [arr, setArr] = useState([]);
+
+  function add(item) {
+    setArr([...arr, item]);
+  }
+
+  function remove(index) {
+    setArr([...arr.slice(0, index), ...arr.slice(index + 1, arr.length)]);
+  }
+
+  return [arr, add, remove];
+}
+```
+
+```js subtitle="You can use this for tons of different cases, here are a few I have written:"
+// useState wrapper for handling saving to local storage
+const [storage, setStorage] = useLocalStorage(key, initialState);
+
+// useEffect wrapper for dealing with key inputs
+useKeyListener(keyToActionMap);
+
+// useState wrapper for handling full form objects inluding validation
+const [form, updateForm] = useSimpleForm(initialFormState);
+
+// useReducer wrapper to provide thunk-like https request capabilities
+const [state, thunk, dispatch] = useThunk(reducer, initialState);
+```
+
+</CodeSurferLayout>
+
+---
+
+### Questions on Custom Hooks?
+
+---
+
+## Conclusion
+
+---
+
+<CodeSurferLayout>
+
+```js subtitle="useState is used when we need to access state values in a functional component"
+const [myState, setMyState] = useState('');
+```
+
+```js subtitle="useReducer is a cleaner way to deal with larger more complex component state using the reducer pattern"
+const [state, dispatch] = useReducer(reducer, { ... });
+```
+
+```js subtitle="useEffect enables us to deal with side-effects to our program like HTTPS requests and event listeners"
+useEffect(() => {
+  axios.get('https://my-data.com/api');
+});
+```
+
+```js subtitle="custom hooks are a way to bundle reused stateful-logic together"
+function useArrayState(initialState) {
+  const [arr, setArr] = useState(initialState);
+  
+  function add(item) { ... }
+  function remove(index) { ... }
+
+  return [arr, add, remove];
+}
+```
+
+</CodeSurferLayout>
+
+---
+
+<Layout>
+
+### There are a bunch of other built-in hooks provided by React to handle more specific scenarios
+
+- `useContext`
+  - Allows functional components to consume from a context provider
+- `useCallback`
+  - Returns a memoized callback that is only recomputed if dependencies update
+  - useful for preventing 'unnecessary' renders
+- `useMemo`
+  - Returns a memoized value that will only be recomputed if dependencies update
+- `useRef`
+  - Returns a mutable ref object that persists for the lifetime of the component
+- and more!
+
+</Layout>
+
+---
+
+## Let's go try out some hooks!
+
+---

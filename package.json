@@ -4,6 +4,7 @@
   "scripts": {
     "start": "mdx-deck deck.mdx",
     "build": "mdx-deck build deck.mdx",
+    "now-build": "npm run build",
     "test": "echo \"there are no tests\""
   },
   "devDependencies": {

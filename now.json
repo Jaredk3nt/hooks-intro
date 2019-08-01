@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "name": "hooks-intro-deck",
+  "builds": [{ "src": "package.json", "use": "@now/static-build" }],
+  "alias": ["fortellis-hooks-intro"]
+}
